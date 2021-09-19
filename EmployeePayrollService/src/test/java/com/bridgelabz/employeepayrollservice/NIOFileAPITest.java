@@ -33,10 +33,18 @@ public class NIOFileAPITest {
 		IntStream.range(1,10).forEach(cntr -> {
 			Path tempFile = Paths.get(playPath+"/temp"+cntr);
 			Assert.assertTrue(Files.notExists(tempFile));
-			try { Files.createFile(tempFile);}
-			catch(IOException e) {}
+			try { 
+				Files.createFile(tempFile);
+			} catch(IOException e) {}
 			Assert.assertTrue(Files.exists(tempFile));
 		});
-
+		try {
+			Files.list(playPath).filter(Files:: isRegularFile).forEach(System.out::println);
+			Files.newDirectoryStream(playPath).forEach(System.out::println);
+			Files.newDirectoryStream(playPath , path -> path.toFile().isFile() && path.toString().startsWith("temp")).forEach(System.out::println);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
     }
 }
