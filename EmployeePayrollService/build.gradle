@@ -26,4 +26,7 @@ dependencies {
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
+    compile 'com.google.code.gson:gson:2.2.+'
+    compile 'com.opencsv:opencsv:4.0'
+    compile group: 'mysql', name: 'mysql-connector-java',version: '5.1.49'
 }
