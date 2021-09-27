@@ -1,9 +1,14 @@
 package com.bridgelabz.employeepayrollservice;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.bridgelabz.employeepayrollservice.EmployeePayrollService.IOService;
@@ -12,6 +17,13 @@ import static com.bridgelabz.employeepayrollservice.EmployeePayrollService.IOSer
 
 
 public class EmployeePayrollServiceTest {
+	public int numOfEntries = 0;
+	@Before
+	public void initialise() {
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		List<EmployeePayrollData> employeePayrollData = employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
+		numOfEntries = employeePayrollData.size();
+	}
 	@Test
 	public void given3EmployeesWhenWrittenToFileShouldMatchEmployeeEntries() {
 		EmployeePayrollData[] arrayOfEmps = {
@@ -31,8 +43,48 @@ public class EmployeePayrollServiceTest {
 	
 	@Test
 	public void givenEmployeePayrollInDB_WhenRetrieved_ShouldMatchEmployeeCount(){
-		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
-		List<EmployeePayrollData> employeePayrollData = employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
-		Assert.assertEquals(5, employeePayrollData.size());
+		try {
+			EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+			List<EmployeePayrollData> employeePayrollData = employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
+			Assert.assertEquals(numOfEntries, employeePayrollData.size());
+		}catch(EmployeePayrollException e) {
+			e.printStackTrace();
+		}
+	}
+	@Test
+	public void givenEmployeePayrollDetails_ShouldInsertToTheTable() {
+		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d-MM-yyyy");
+			String date1 = "11-02-2017";
+			String date2 = "16-04-2018";
+			EmployeePayrollService employeePayrollService;
+			EmployeePayrollData data = new EmployeePayrollData();
+			data.setName("Jasmine");
+			data.setPhoneNumber("8880909090");
+			data.setAddress("Shimoga");
+			data.setDepartment("Sales");
+			data.setGender("F");
+			data.setSalary(20300000);
+			data.setStartDate(LocalDate.parse(date1,formatter));
+			EmployeePayrollData data2 = new EmployeePayrollData();
+			data2.setName("Alex");
+			data2.setPhoneNumber("9099777090");
+			data2.setAddress("Koramangala");
+			data2.setDepartment("HR");
+			data2.setGender("M");
+			data2.setSalary(200000);
+			data2.setStartDate(LocalDate.parse(date2,formatter));
+			EmployeePayrollData[] arrayOfEmps = {
+					data,data2
+			};
+			employeePayrollService = new EmployeePayrollService(Arrays.asList(arrayOfEmps));
+			employeePayrollService.writeEmployeePayrollData(IOService.DB_IO);
+			numOfEntries++;
+			Assert.assertTrue(true);
+			
+		}catch(EmployeePayrollException e) {
+			e.printStackTrace();
+		}
+		
 	}
 }
