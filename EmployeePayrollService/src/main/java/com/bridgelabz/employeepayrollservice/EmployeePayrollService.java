@@ -78,6 +78,18 @@ public class EmployeePayrollService {
 		List<EmployeePayrollData> employeePayrollDataList = employeePayrollDBService.getEmployeePayrollData(name);
 		return employeePayrollDataList.get(0).equals(getEmployeePayrollData(name));
 	}
+	public int getSumOfSalaryGenderWise(String gender) {
+		return employeePayrollDBService.genderWiseSumOfEmployeeSalary(gender);
+	}
+	public int getMaxOfSalaryGenderWise(String gender) {
+		return employeePayrollDBService.genderWiseMaxOfEmployeeSalary(gender);
+	}
+	public int getMinOfSalaryGenderWise(String gender) {
+		return employeePayrollDBService.genderWiseMinOfEmployeeSalary(gender);
+	}
+	public int getAvgOfSalaryGenderWise(String gender) {
+		return employeePayrollDBService.genderWiseAvgOfEmployeeSalary(gender);
+	}
 
 	
 }
