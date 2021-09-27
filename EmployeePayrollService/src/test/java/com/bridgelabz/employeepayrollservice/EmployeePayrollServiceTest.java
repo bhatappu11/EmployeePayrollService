@@ -95,4 +95,10 @@ public class EmployeePayrollServiceTest {
 		boolean result = employeePayrollService.checkEmployeePayrollInSyncWithDB("Tanisha");
 		Assert.assertTrue(result);
 	}
+	@Test
+	public void givenDateRange_WhenQueried_ShouldReturnEmployeeList(){
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		List<EmployeePayrollData> employeeList = employeePayrollService.getEmployeesInADateRange("2019-01-01","2021-01-01");
+		Assert.assertEquals(3, employeeList.size());
+	}
 }
