@@ -15,6 +15,7 @@ import java.util.List;
 public class EmployeePayrollDBService {
 	private PreparedStatement employeePayrollDataStatement;
 	private PreparedStatement employeePayrollDateStatement;
+	private PreparedStatement employeePayrollUpdateDataStatement;
 	private static EmployeePayrollDBService employeePayrollDBService;
 	private EmployeePayrollDBService() {
 	}
@@ -61,9 +62,36 @@ public class EmployeePayrollDBService {
 		return connection;
 	}
 	public int updateEmployeeData(String name, double salary) {
-		return this.updateEmployeeDataUsingStatement(name,salary);
+		return this.updateEmployeeDataUsingPreparedStatement(name,salary);
 	}
 	
+	private int updateEmployeeDataUsingPreparedStatement(String name, double salary) {
+		if(this.employeePayrollUpdateDataStatement==null){
+			this.preparedStatementForUpdateEmployeeData();
+		}
+		try{
+			employeePayrollUpdateDataStatement.setString(2,name);
+			employeePayrollUpdateDataStatement.setDouble(1,salary);
+			return employeePayrollUpdateDataStatement.executeUpdate();
+		}
+		catch (SQLException e){
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	private void preparedStatementForUpdateEmployeeData() {
+		try{
+			Connection connection = this.getConnection();
+			String sql="UPDATE employee_payroll SET salary = ? WHERE name = ?;";
+
+			employeePayrollUpdateDataStatement=connection.prepareStatement(sql);
+		}
+		catch (SQLException e){
+			e.printStackTrace();
+		}
+	}
+
 	private int updateEmployeeDataUsingStatement(String name, double salary) {
 		String sql = String.format("update employee_payroll set salary = '%2f' where name = '%s';",salary,name);
 		try(Connection connection = this.getConnection()) {
