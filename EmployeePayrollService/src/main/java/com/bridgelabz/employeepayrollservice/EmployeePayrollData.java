@@ -4,12 +4,13 @@ import java.time.LocalDate;
 
 public class EmployeePayrollData {
 	public int id;
-	public String emp_id;
 	public String name;
 	public double salary;
 	public String phoneNumber;
 	public String gender;
 	public LocalDate startDate;
+	public String department;
+	public String address;
 	
 	public EmployeePayrollData(int id, String name, double salary) {
 		this.id = id;
@@ -17,21 +18,92 @@ public class EmployeePayrollData {
 		this.salary = salary;
 	}
 
-	public EmployeePayrollData(String id2, String name2, String phoneNumber, String gender, LocalDate start) {
-		this.emp_id = id2;
-		this.name = name2;
+	public EmployeePayrollData(int id2, String name2, String phoneNumber,String address, String department, String gender, double salary2, LocalDate start) {
+		this(id2,name2,salary2);
 		this.phoneNumber = phoneNumber;
+		this.address = address;
+		this.department = department;
 		this.gender = gender;
 		this.startDate = start;
 	}
 
-	@Override
-	public String toString() {
-		return "EmployeePayrollData [id=" + id + ", emp_id=" + emp_id + ", name=" + name + ", salary=" + salary
-				+ ", phoneNumber=" + phoneNumber + ", gender=" + gender + ", startDate=" + startDate + "]";
+	public EmployeePayrollData() {
 	}
 
-		@Override
+	@Override
+	public String toString() {
+		return "EmployeePayrollData [id=" + id + ", name=" + name + ", salary=" + salary + ", phoneNumber="
+				+ phoneNumber + ", gender=" + gender + ", startDate=" + startDate + ", department=" + department
+				+ ", address=" + address + "]";
+	}
+
+	
+	public int getId() {
+		return id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public double getSalary() {
+		return salary;
+	}
+
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public String getGender() {
+		return gender;
+	}
+
+	public LocalDate getStartDate() {
+		return startDate;
+	}
+
+	public String getDepartment() {
+		return department;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+	
+	
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setSalary(double salary) {
+		this.salary = salary;
+	}
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+
+	public void setStartDate(LocalDate startDate) {
+		this.startDate = startDate;
+	}
+
+	public void setDepartment(String department) {
+		this.department = department;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -40,10 +112,15 @@ public class EmployeePayrollData {
 		if (getClass() != obj.getClass())
 			return false;
 		EmployeePayrollData other = (EmployeePayrollData) obj;
-		if (emp_id == null) {
-			if (other.emp_id != null)
+		if (address == null) {
+			if (other.address != null)
 				return false;
-		} else if (!emp_id.equals(other.emp_id))
+		} else if (!address.equals(other.address))
+			return false;
+		if (department == null) {
+			if (other.department != null)
+				return false;
+		} else if (!department.equals(other.department))
 			return false;
 		if (gender == null) {
 			if (other.gender != null)
@@ -71,6 +148,4 @@ public class EmployeePayrollData {
 			return false;
 		return true;
 	}
-	
-	
 }
