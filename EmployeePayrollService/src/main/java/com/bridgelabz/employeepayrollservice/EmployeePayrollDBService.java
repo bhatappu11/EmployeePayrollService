@@ -14,6 +14,7 @@ import java.util.List;
 
 public class EmployeePayrollDBService {
 	private PreparedStatement employeePayrollDataStatement;
+	private PreparedStatement employeePayrollDateStatement;
 	private static EmployeePayrollDBService employeePayrollDBService;
 	private EmployeePayrollDBService() {
 	}
@@ -116,6 +117,34 @@ public class EmployeePayrollDBService {
 			e.printStackTrace();
 		}
 		
+	}
+	public List<EmployeePayrollData> getEmployeesBetweenDateRange(String startDate, String endDate){
+		List<EmployeePayrollData> employeePayrollList=null;
+		if(this.employeePayrollDateStatement==null){
+			this.preparedStatementForEmployeeJoinedInDateRange();
+		}
+		try{
+			employeePayrollDateStatement.setDate(1,java.sql.Date.valueOf(startDate));
+			employeePayrollDateStatement.setDate(2,java.sql.Date.valueOf(endDate));
+
+			ResultSet resultSet= employeePayrollDateStatement.executeQuery();
+			employeePayrollList=this.getEmployeePayrollData(resultSet);
+
+		}catch (SQLException e){
+			e.printStackTrace();
+		}
+		return employeePayrollList;
+
+	}
+
+	private void preparedStatementForEmployeeJoinedInDateRange() {
+		try{
+			Connection connection = this.getConnection();
+			String sql="SELECT * FROM employee_payroll WHERE start BETWEEN ? AND ?";
+			employeePayrollDateStatement=connection.prepareStatement(sql);
+		}catch (SQLException e){
+			e.printStackTrace();
+		}
 	}
 
 }
