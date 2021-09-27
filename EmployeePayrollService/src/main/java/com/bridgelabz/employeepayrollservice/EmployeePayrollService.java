@@ -52,7 +52,9 @@ public class EmployeePayrollService {
 		}
 		return this.employeePayrollList;
 	}
-	
+	public List<EmployeePayrollData> getEmployeesInADateRange(String date1, String date2){
+		return employeePayrollDBService.getEmployeesBetweenDateRange(date1, date2);
+	}
 	public long countEntries(IOService ioService) {
 		if(ioService.equals(IOService.FILE_IO)) {
 			return new EmployeePayrollFileIOService().countEntries();
