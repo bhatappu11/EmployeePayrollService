@@ -16,6 +16,10 @@ public class EmployeePayrollDBService {
 	private PreparedStatement employeePayrollDataStatement;
 	private PreparedStatement employeePayrollDateStatement;
 	private PreparedStatement employeePayrollUpdateDataStatement;
+	private PreparedStatement genderWiseSumDataStatement;
+	private PreparedStatement genderWiseMaxDataStatement;
+	private PreparedStatement genderWiseMinDataStatement;
+	private PreparedStatement genderWiseAvgDataStatement;
 	private static EmployeePayrollDBService employeePayrollDBService;
 	private EmployeePayrollDBService() {
 	}
@@ -91,6 +95,36 @@ public class EmployeePayrollDBService {
 			e.printStackTrace();
 		}
 	}
+	public int genderWiseSumOfEmployeeSalary(String gender) {
+		return this.genderWiseSumUsingPreparedStatement(gender);
+	}
+	
+	private int genderWiseSumUsingPreparedStatement(String gender) {
+		if(this.genderWiseSumDataStatement==null){
+			this.preparedStatementForGenderWiseSumEmployeeSalary();
+		}
+		try{
+			genderWiseSumDataStatement.setString(1,gender);
+			genderWiseSumDataStatement.executeQuery();
+		}
+		catch (SQLException e){
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	private void preparedStatementForGenderWiseSumEmployeeSalary() {
+		try{
+			Connection connection = this.getConnection();
+			String sql="SELECT sum(salary) from employee_payroll where gender = ? group by gender;";
+
+			genderWiseSumDataStatement=connection.prepareStatement(sql);
+		}
+		catch (SQLException e){
+			e.printStackTrace();
+		}
+	}
+
 
 	private int updateEmployeeDataUsingStatement(String name, double salary) {
 		String sql = String.format("update employee_payroll set salary = '%2f' where name = '%s';",salary,name);
@@ -174,5 +208,100 @@ public class EmployeePayrollDBService {
 			e.printStackTrace();
 		}
 	}
+
+	public int genderWiseMaxOfEmployeeSalary(String gender) {
+		return this.genderWiseMaxUsingPreparedStatement(gender);
+	}
+	
+	private int genderWiseMaxUsingPreparedStatement(String gender) {
+		if(this.genderWiseMaxDataStatement==null){
+			this.preparedStatementForGenderWiseMaxEmployeeSalary();
+		}
+		try{
+			genderWiseMaxDataStatement.setString(1,gender);
+			genderWiseMaxDataStatement.executeQuery();
+		}
+		catch (SQLException e){
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	private void preparedStatementForGenderWiseMaxEmployeeSalary() {
+		try{
+			Connection connection = this.getConnection();
+			String sql="SELECT max(salary) from employee_payroll where gender = ? group by gender;";
+
+			genderWiseMaxDataStatement=connection.prepareStatement(sql);
+		}
+		catch (SQLException e){
+			e.printStackTrace();
+		}
+	}
+
+	public int genderWiseMinOfEmployeeSalary(String gender) {
+		return this.genderWiseMinUsingPreparedStatement(gender);
+	}
+	
+	private int genderWiseMinUsingPreparedStatement(String gender) {
+		if(this.genderWiseMinDataStatement==null){
+			this.preparedStatementForGenderWiseMinEmployeeSalary();
+		}
+		try{
+			genderWiseMinDataStatement.setString(1,gender);
+			genderWiseMinDataStatement.executeQuery();
+		}
+		catch (SQLException e){
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	private void preparedStatementForGenderWiseMinEmployeeSalary() {
+		try{
+			Connection connection = this.getConnection();
+			String sql="SELECT min(salary) from employee_payroll where gender = ? group by gender;";
+
+			genderWiseMinDataStatement=connection.prepareStatement(sql);
+		}
+		catch (SQLException e){
+			e.printStackTrace();
+		}
+	}
+
+	public int genderWiseAvgOfEmployeeSalary(String gender) {
+		return this.genderWiseAvgUsingPreparedStatement(gender);
+	}
+	
+	private int genderWiseAvgUsingPreparedStatement(String gender) {
+		if(this.genderWiseAvgDataStatement==null){
+			this.preparedStatementForGenderWiseAvgEmployeeSalary();
+		}
+		try{
+			genderWiseAvgDataStatement.setString(1,gender);
+			genderWiseAvgDataStatement.executeQuery();
+		}
+		catch (SQLException e){
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	private void preparedStatementForGenderWiseAvgEmployeeSalary() {
+		try{
+			Connection connection = this.getConnection();
+			String sql="SELECT avg(salary) from employee_payroll where gender = ? group by gender;";
+
+			genderWiseAvgDataStatement=connection.prepareStatement(sql);
+		}
+		catch (SQLException e){
+			e.printStackTrace();
+		}
+	}
+
+
+
+
+	
 
 }
