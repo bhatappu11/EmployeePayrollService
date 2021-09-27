@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class EmployeePayrollDBService {
@@ -34,8 +35,20 @@ public class EmployeePayrollDBService {
 		}
 		return employeePayrollList;
 	}
+	public void writeData(List<EmployeePayrollData> employeePayrollList) {
+		employeePayrollList.stream().forEach(employee -> {
+		String sql = String.format("insert into employee_payroll(name,phoneNumber,address,department,gender,salary,start) values ('%s','%s','%s','%s','%s','%2f','%s')",
+				employee.name,employee.phoneNumber,employee.address,employee.department,employee.gender,employee.salary,employee.startDate.toString());
+		try(Connection connection = this.getConnection()) {
+			Statement statement = connection.createStatement();
+			statement.executeUpdate(sql);
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		});
+	}
 
-	private Connection getConnection() throws SQLException {
+	private Connection getConnection() throws SQLException{
 		String jdbcURL = "jdbc:mysql://localhost:3306/payroll_service?useSSL=false";
 		String userName = "root";
 		String password = "perfios";
@@ -45,5 +58,7 @@ public class EmployeePayrollDBService {
 		System.out.println("connection is successful!"+connection);
 		return connection;
 	}
+
+	
 	
 }
