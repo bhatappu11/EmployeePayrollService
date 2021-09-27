@@ -62,6 +62,7 @@ public class EmployeePayrollDBService {
 	public int updateEmployeeData(String name, double salary) {
 		return this.updateEmployeeDataUsingStatement(name,salary);
 	}
+	
 	private int updateEmployeeDataUsingStatement(String name, double salary) {
 		String sql = String.format("update employee_payroll set salary = '%2f' where name = '%s';",salary,name);
 		try(Connection connection = this.getConnection()) {
@@ -75,7 +76,7 @@ public class EmployeePayrollDBService {
 	public List<EmployeePayrollData> getEmployeePayrollData(String name) {
 		List<EmployeePayrollData> employeePayrollList = null;
 		if (this.employeePayrollDataStatement == null)
-		this.prepareStatementForEmployeeData();
+			this.prepareStatementForEmployeeData();
 		try {
 			employeePayrollDataStatement.setString(1, name);
 			ResultSet resultSet = employeePayrollDataStatement.executeQuery();
@@ -110,7 +111,7 @@ public class EmployeePayrollDBService {
 		try {
 			Connection connection = this.getConnection();
 			String sql=	"SELECT	* FROM employee_payroll WHERE name = ?";
-			employeePayrollDataStatement = connection. prepareStatement(sql);
+			employeePayrollDataStatement = connection.prepareStatement(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
