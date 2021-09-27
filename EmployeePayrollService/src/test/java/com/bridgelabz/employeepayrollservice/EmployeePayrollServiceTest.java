@@ -101,4 +101,28 @@ public class EmployeePayrollServiceTest {
 		List<EmployeePayrollData> employeeList = employeePayrollService.getEmployeesInADateRange("2019-01-01","2021-01-01");
 		Assert.assertEquals(3, employeeList.size());
 	}
+	@Test
+	public void givenEmployeePayrollDB_WhenGivenGender_ShouldReturnSumOfSalary() {
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		int result = employeePayrollService.getSumOfSalaryGenderWise("M");
+		Assert.assertEquals(0, result);
+	}
+	@Test
+	public void givenEmployeePayrollDB_WhenGivenGender_ShouldReturnMaxOfSalary() {
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		int result = employeePayrollService.getMaxOfSalaryGenderWise("F");
+		Assert.assertEquals(0, result);
+	}
+	@Test
+	public void givenEmployeePayrollDB_WhenGivenGender_ShouldReturnMinOfSalary() {
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		int result = employeePayrollService.getMinOfSalaryGenderWise("F");
+		Assert.assertEquals(0, result);
+	}
+	@Test
+	public void givenEmployeePayrollDB_WhenGivenGender_ShouldReturnAvgOfSalary() {
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		int result = employeePayrollService.getAvgOfSalaryGenderWise("M");
+		Assert.assertEquals(0, result);
+	}
 }
