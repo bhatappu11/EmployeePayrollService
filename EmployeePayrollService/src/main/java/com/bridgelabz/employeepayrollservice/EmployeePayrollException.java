@@ -2,11 +2,11 @@ package com.bridgelabz.employeepayrollservice;
 
 
 public class EmployeePayrollException extends RuntimeException{
-	enum exceptionType{
-		INVALID_QUERY
+	enum ExceptionType{
+		FAILED_TO_CONNECT, CANNOT_EXECUTE_QUERY, UPDATE_FAILED
 	}
-	exceptionType etype;
-	public EmployeePayrollException(exceptionType type, String message) {
+	ExceptionType etype;
+	public EmployeePayrollException(ExceptionType type, String message) {
 		super(message);
 		this.etype = type;
 	}
