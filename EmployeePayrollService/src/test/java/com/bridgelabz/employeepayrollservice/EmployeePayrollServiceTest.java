@@ -53,39 +53,14 @@ public class EmployeePayrollServiceTest {
 		}
 	}
 	@Test
-	public void givenEmployeePayrollDetails_ShouldInsertToTheTable() {
-		try {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d-MM-yyyy");
-			String date1 = "11-02-2017";
-			String date2 = "16-04-2018";
-			EmployeePayrollService employeePayrollService;
-			EmployeePayrollData data = new EmployeePayrollData();
-			data.setName("Jasmine");
-			data.setPhoneNumber("8880909090");
-			data.setAddress("Shimoga");
-			data.setDepartment("Sales");
-			data.setGender("F");
-			data.setSalary(20300000);
-			data.setStartDate(LocalDate.parse(date1,formatter));
-			EmployeePayrollData data2 = new EmployeePayrollData();
-			data2.setName("Alex");
-			data2.setPhoneNumber("9099777090");
-			data2.setAddress("Koramangala");
-			data2.setDepartment("HR");
-			data2.setGender("M");
-			data2.setSalary(200000);
-			data2.setStartDate(LocalDate.parse(date2,formatter));
-			EmployeePayrollData[] arrayOfEmps = {
-					data,data2
-			};
-			employeePayrollService = new EmployeePayrollService(Arrays.asList(arrayOfEmps));
-			employeePayrollService.writeEmployeePayrollData(IOService.DB_IO);
-			numOfEntries++;
-			Assert.assertTrue(true);
-			
-		}catch(EmployeePayrollException e) {
-			e.printStackTrace();
-		}
+	public void givenEmployeePayrollDetails_WhenAdded_ShouldSyncWithDB() {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d-MM-yyyy");
+		String date = "11-02-2017";
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
+		employeePayrollService.addEmployeeToPayroll("Mark","9090906789","RT Nagar","M",200000.00,LocalDate.parse(date,formatter));
+		boolean result=employeePayrollService.checkEmployeePayrollInSyncWithDB("Mark");
+		Assert.assertTrue(result);
 		
 	}
 	@Test
