@@ -8,8 +8,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
+import com.bridgelabz.employeepayrollservice.EmployeePayrollException.ExceptionType;
 
 
 public class EmployeePayrollDBService {
@@ -184,10 +188,10 @@ public class EmployeePayrollDBService {
 		}
 		
 	}
-	public List<EmployeePayrollData> getEmployeesBetweenDateRange(String startDate, String endDate){
+	public List<EmployeePayrollData> getEmployeesBetweenDateRange(LocalDate startDate, LocalDate endDate){
 		List<EmployeePayrollData> employeePayrollList=null;
 		if(this.employeePayrollDateStatement==null){
-			this.preparedStatementForEmployeeJoinedInDateRange();
+			this.preparedStatementForEmployeeInDateRange();
 		}
 		try{
 			employeePayrollDateStatement.setDate(1,java.sql.Date.valueOf(startDate));
@@ -203,7 +207,7 @@ public class EmployeePayrollDBService {
 
 	}
 
-	private void preparedStatementForEmployeeJoinedInDateRange() {
+	private void preparedStatementForEmployeeInDateRange() {
 		try{
 			Connection connection = this.getConnection();
 			String sql="SELECT * FROM employee_payroll WHERE start BETWEEN ? AND ?";
@@ -273,36 +277,75 @@ public class EmployeePayrollDBService {
 		}
 	}
 
-	public int genderWiseAvgOfEmployeeSalary(String gender) {
-		return this.genderWiseAvgUsingPreparedStatement(gender);
+	public Map<String, Double> getAverageSalaryByGender() {
+		String sql = "SELECT gender,avg(salary) as avg_salary FROM employee_payroll GROUP BY gender;";
+		Map<String, Double> genderToAverageSalaryMap = new HashMap<>();
+		try(Connection connection = this.getConnection()){
+			Statement statement = connection.createStatement();
+			ResultSet result = statement. executeQuery(sql);
+			while(result.next()) {
+				String gender = result.getString("gender");
+				double salary = result.getDouble("avg_salary");
+				genderToAverageSalaryMap.put(gender, salary);
+			}
+		}catch (SQLException e) {
+			throw new EmployeePayrollException(ExceptionType.CANNOT_EXECUTE_QUERY, "Cannot execute given query");
+		}
+		return genderToAverageSalaryMap;
 	}
+
+	public Map<String, Double> getSumSalaryByGender() {
+		String sql = "SELECT gender,sum(salary) as sum_salary FROM employee_payroll GROUP BY gender;";
+		Map<String, Double> genderToSumSalaryMap = new HashMap<>();
+		try(Connection connection = this.getConnection()){
+			Statement statement = connection.createStatement();
+			ResultSet result = statement. executeQuery(sql);
+			while(result.next()) {
+				String gender = result.getString("gender");
+				double salary = result.getDouble("sum_salary");
+				genderToSumSalaryMap.put(gender, salary);
+			}
+		}catch (SQLException e) {
+			throw new EmployeePayrollException(ExceptionType.CANNOT_EXECUTE_QUERY, "Cannot execute given query");
+		}
+		return genderToSumSalaryMap;
+	}
+
+	public Map<String, Double> getMaxSalaryByGender() {
+		String sql = "SELECT gender,max(salary) as max_salary FROM employee_payroll GROUP BY gender;";
+		Map<String, Double> genderToMaxSalaryMap = new HashMap<>();
+		try(Connection connection = this.getConnection()){
+			Statement statement = connection.createStatement();
+			ResultSet result = statement. executeQuery(sql);
+			while(result.next()) {
+				String gender = result.getString("gender");
+				double salary = result.getDouble("max_salary");
+				genderToMaxSalaryMap.put(gender, salary);
+			}
+		}catch (SQLException e) {
+			throw new EmployeePayrollException(ExceptionType.CANNOT_EXECUTE_QUERY, "Cannot execute given query");
+		}
+		return genderToMaxSalaryMap;
+	}
+
+	public Map<String, Double> getMinSalaryByGender() {
+		String sql = "SELECT gender,min(salary) as min_salary FROM employee_payroll GROUP BY gender;";
+		Map<String, Double> genderToMinSalaryMap = new HashMap<>();
+		try(Connection connection = this.getConnection()){
+			Statement statement = connection.createStatement();
+			ResultSet result = statement. executeQuery(sql);
+			while(result.next()) {
+				String gender = result.getString("gender");
+				double salary = result.getDouble("min_salary");
+				genderToMinSalaryMap.put(gender, salary);
+			}
+		}catch (SQLException e) {
+			throw new EmployeePayrollException(ExceptionType.CANNOT_EXECUTE_QUERY, "Cannot execute given query");
+		}
+		return genderToMinSalaryMap;
+	}
+
 	
-	private int genderWiseAvgUsingPreparedStatement(String gender) {
-		if(this.genderWiseAvgDataStatement==null){
-			this.preparedStatementForGenderWiseAvgEmployeeSalary();
-		}
-		try{
-			genderWiseAvgDataStatement.setString(1,gender);
-			genderWiseAvgDataStatement.executeQuery();
-		}
-		catch (SQLException e){
-			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "Cannot execute the query");
-		}
-		return 0;
-	}
-
-	private void preparedStatementForGenderWiseAvgEmployeeSalary() {
-		try{
-			Connection connection = this.getConnection();
-			String sql="SELECT avg(salary) from employee_payroll where gender = ? group by gender;";
-
-			genderWiseAvgDataStatement=connection.prepareStatement(sql);
-		}
-		catch (SQLException e){
-			e.printStackTrace();
-		}
-	}
-
 
 
 
