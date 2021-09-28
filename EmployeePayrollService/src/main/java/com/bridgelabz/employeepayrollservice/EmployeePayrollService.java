@@ -31,9 +31,6 @@ public class EmployeePayrollService {
 		else if(ioService.equals(IOService.FILE_IO)) {
 			new EmployeePayrollFileIOService().writeData(employeePayrollList);
 		}
-		else if(ioService.equals(IOService.DB_IO)) {
-			employeePayrollDBService.writeData(employeePayrollList);
-		}
 	}
 	
 	public List<EmployeePayrollData> readEmployeePayrollData(IOService ioService) {
@@ -99,6 +96,10 @@ public class EmployeePayrollService {
 		if(dbIo.equals(IOService.DB_IO))
 			return employeePayrollDBService.getMinSalaryByGender();
 		return null;
+	}
+	public void addEmployeeToPayroll(String name, String phoneNumber, String address, String gender,
+			double salary, LocalDate startDate) {
+		employeePayrollList.add(employeePayrollDBService.addEmployeeToPayroll(name,phoneNumber,address,gender,salary,startDate));		
 	}
 	
 
