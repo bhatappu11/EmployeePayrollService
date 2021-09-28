@@ -50,6 +50,7 @@ public class EmployeePayrollDBService {
 		EmployeePayrollData employeePayrollData = null;
 		try {
 			connection = this.getConnection();
+			connection.setAutoCommit(false);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -61,9 +62,12 @@ public class EmployeePayrollDBService {
 				ResultSet resultSet = statement.getGeneratedKeys();
 				if (resultSet.next()) employee_id = resultSet.getInt(1);				
 			}
-			//employeePayrollData = new EmployeePayrollData(employee_id, name, phoneNumber, address, gender, salary, startDate);
 		}catch(SQLException e) {
-			throw new EmployeePayrollException(ExceptionType.INSERT_FAILED, "Insertion failed");
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				throw new EmployeePayrollException(ExceptionType.INSERT_FAILED, "Insertion failed");
+			}
 		}
 		try(Statement statement = connection.createStatement()){
 			double deductions = salary * 0.2;
@@ -77,6 +81,23 @@ public class EmployeePayrollDBService {
 				employeePayrollData = new EmployeePayrollData(employee_id, name, phoneNumber, address, gender, salary, startDate);			
 		}catch(SQLException e) {
 			e.printStackTrace();
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		}
+		try {
+			connection.commit();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally {
+			if(connection != null)
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					throw new EmployeePayrollException(ExceptionType.CONNECTION_CLOSE_FAILED,"Couldn't close connection" );
+				}
 		}
 		return employeePayrollData;
 	}
