@@ -9,7 +9,6 @@ public class EmployeePayrollData {
 	public String phoneNumber;
 	public String gender;
 	public LocalDate startDate;
-	public String department;
 	public String address;
 	
 	public EmployeePayrollData(int id, String name, double salary) {
@@ -18,11 +17,10 @@ public class EmployeePayrollData {
 		this.salary = salary;
 	}
 
-	public EmployeePayrollData(int id2, String name2, String phoneNumber,String address, String department, String gender, double salary2, LocalDate start) {
+	public EmployeePayrollData(int id2, String name2, String phoneNumber,String address, String gender, double salary2, LocalDate start) {
 		this(id2,name2,salary2);
 		this.phoneNumber = phoneNumber;
 		this.address = address;
-		this.department = department;
 		this.gender = gender;
 		this.startDate = start;
 	}
@@ -33,7 +31,7 @@ public class EmployeePayrollData {
 	@Override
 	public String toString() {
 		return "EmployeePayrollData [id=" + id + ", name=" + name + ", salary=" + salary + ", phoneNumber="
-				+ phoneNumber + ", gender=" + gender + ", startDate=" + startDate + ", department=" + department
+				+ phoneNumber + ", gender=" + gender + ", startDate=" + startDate 
 				+ ", address=" + address + "]";
 	}
 
@@ -62,10 +60,7 @@ public class EmployeePayrollData {
 		return startDate;
 	}
 
-	public String getDepartment() {
-		return department;
-	}
-
+	
 	public String getAddress() {
 		return address;
 	}
@@ -95,10 +90,6 @@ public class EmployeePayrollData {
 		this.startDate = startDate;
 	}
 
-	public void setDepartment(String department) {
-		this.department = department;
-	}
-
 	public void setAddress(String address) {
 		this.address = address;
 	}
@@ -116,11 +107,6 @@ public class EmployeePayrollData {
 			if (other.address != null)
 				return false;
 		} else if (!address.equals(other.address))
-			return false;
-		if (department == null) {
-			if (other.department != null)
-				return false;
-		} else if (!department.equals(other.department))
 			return false;
 		if (gender == null) {
 			if (other.gender != null)
