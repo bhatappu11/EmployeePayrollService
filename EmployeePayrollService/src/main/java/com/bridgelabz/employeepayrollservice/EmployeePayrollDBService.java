@@ -55,17 +55,21 @@ public class EmployeePayrollDBService {
 		});
 	}
 
-	private Connection getConnection() throws SQLException{
+	private Connection getConnection() {
 		String jdbcURL = "jdbc:mysql://localhost:3306/payroll_service?useSSL=false";
 		String userName = "root";
 		String password = "perfios";
 		Connection connection;
 		System.out.println("connecting to database: "+jdbcURL);
-		connection = DriverManager.getConnection(jdbcURL, userName, password);
+		try {
+			connection = DriverManager.getConnection(jdbcURL, userName, password);
+		} catch (SQLException e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.FAILED_TO_CONNECT, "Failed to connect to database");
+		}
 		System.out.println("connection is successful!"+connection);
 		return connection;
 	}
-	public int updateEmployeeData(String name, double salary) {
+	public int updateEmployeeData(String name, double salary) throws EmployeePayrollException {
 		return this.updateEmployeeDataUsingPreparedStatement(name,salary);
 	}
 	
@@ -79,9 +83,9 @@ public class EmployeePayrollDBService {
 			return employeePayrollUpdateDataStatement.executeUpdate();
 		}
 		catch (SQLException e){
-			e.printStackTrace();
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.UPDATE_FAILED, "Failed to update the given data");
 		}
-		return 0;
+
 	}
 
 	private void preparedStatementForUpdateEmployeeData() {
@@ -121,7 +125,7 @@ public class EmployeePayrollDBService {
 			genderWiseSumDataStatement=connection.prepareStatement(sql);
 		}
 		catch (SQLException e){
-			e.printStackTrace();
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "Cannot execute the query");
 		}
 	}
 
@@ -222,7 +226,7 @@ public class EmployeePayrollDBService {
 			genderWiseMaxDataStatement.executeQuery();
 		}
 		catch (SQLException e){
-			e.printStackTrace();
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "Cannot execute the query");
 		}
 		return 0;
 	}
@@ -252,7 +256,7 @@ public class EmployeePayrollDBService {
 			genderWiseMinDataStatement.executeQuery();
 		}
 		catch (SQLException e){
-			e.printStackTrace();
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "Cannot execute the query");
 		}
 		return 0;
 	}
@@ -282,7 +286,7 @@ public class EmployeePayrollDBService {
 			genderWiseAvgDataStatement.executeQuery();
 		}
 		catch (SQLException e){
-			e.printStackTrace();
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "Cannot execute the query");
 		}
 		return 0;
 	}
