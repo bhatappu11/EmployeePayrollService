@@ -1,7 +1,9 @@
 package com.bridgelabz.employeepayrollservice;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class EmployeePayrollService {
@@ -52,8 +54,8 @@ public class EmployeePayrollService {
 		}
 		return this.employeePayrollList;
 	}
-	public List<EmployeePayrollData> getEmployeesInADateRange(String date1, String date2){
-		return employeePayrollDBService.getEmployeesBetweenDateRange(date1, date2);
+	public List<EmployeePayrollData> getEmployeesInADateRange(LocalDate startDate, LocalDate endDate){
+		return employeePayrollDBService.getEmployeesBetweenDateRange(startDate, endDate);
 	}
 	public long countEntries(IOService ioService) {
 		if(ioService.equals(IOService.FILE_IO)) {
@@ -78,18 +80,27 @@ public class EmployeePayrollService {
 		List<EmployeePayrollData> employeePayrollDataList = employeePayrollDBService.getEmployeePayrollData(name);
 		return employeePayrollDataList.get(0).equals(getEmployeePayrollData(name));
 	}
-	public int getSumOfSalaryGenderWise(String gender) {
-		return employeePayrollDBService.genderWiseSumOfEmployeeSalary(gender);
+	public Map<String, Double> readAverageSalaryByGender(IOService dbIo) {
+		if(dbIo.equals(IOService.DB_IO))
+			return employeePayrollDBService.getAverageSalaryByGender();
+		return null;
 	}
-	public int getMaxOfSalaryGenderWise(String gender) {
-		return employeePayrollDBService.genderWiseMaxOfEmployeeSalary(gender);
+	public Map<String, Double> readSumSalaryByGender(IOService dbIo) {
+		if(dbIo.equals(IOService.DB_IO))
+			return employeePayrollDBService.getSumSalaryByGender();
+		return null;
 	}
-	public int getMinOfSalaryGenderWise(String gender) {
-		return employeePayrollDBService.genderWiseMinOfEmployeeSalary(gender);
+	public Map<String, Double> readMaxSalaryByGender(IOService dbIo) {
+		if(dbIo.equals(IOService.DB_IO))
+			return employeePayrollDBService.getMaxSalaryByGender();
+		return null;
 	}
-	public int getAvgOfSalaryGenderWise(String gender) {
-		return employeePayrollDBService.genderWiseAvgOfEmployeeSalary(gender);
+	public Map<String, Double> readMinSalaryByGender(IOService dbIo) {
+		if(dbIo.equals(IOService.DB_IO))
+			return employeePayrollDBService.getMinSalaryByGender();
+		return null;
 	}
+	
 
 	
 }
