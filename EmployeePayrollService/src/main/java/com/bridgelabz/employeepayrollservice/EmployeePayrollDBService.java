@@ -1,6 +1,7 @@
 package com.bridgelabz.employeepayrollservice;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,10 +21,6 @@ public class EmployeePayrollDBService {
 	private PreparedStatement employeePayrollDataStatement;
 	private PreparedStatement employeePayrollDateStatement;
 	private PreparedStatement employeePayrollUpdateDataStatement;
-	private PreparedStatement genderWiseSumDataStatement;
-	private PreparedStatement genderWiseMaxDataStatement;
-	private PreparedStatement genderWiseMinDataStatement;
-	private PreparedStatement genderWiseAvgDataStatement;
 	private static EmployeePayrollDBService employeePayrollDBService;
 	private EmployeePayrollDBService() {
 	}
@@ -46,19 +43,26 @@ public class EmployeePayrollDBService {
 		}
 		return employeePayrollList;
 	}
-	public void writeData(List<EmployeePayrollData> employeePayrollList) {
-		employeePayrollList.stream().forEach(employee -> {
-		String sql = String.format("insert into employee_payroll(name,phoneNumber,address,department,gender,salary,start) values ('%s','%s','%s','%s','%s','%2f','%s')",
-				employee.name,employee.phoneNumber,employee.address,employee.department,employee.gender,employee.salary,employee.startDate.toString());
+	public EmployeePayrollData addEmployeeToPayroll(String name, String phoneNumber, String address,
+			String gender, double salary, LocalDate startDate) {
+		int employee_id = -1;
+		EmployeePayrollData employeePayrollData = null;
+		String sql = String.format("insert into employee_payroll(name,phoneNumber,address,gender,salary,start) values ('%s','%s','%s','%s','%2f','%s')",
+				name,phoneNumber,address,gender,salary,Date.valueOf(startDate));
 		try(Connection connection = this.getConnection()) {
 			Statement statement = connection.createStatement();
-			statement.executeUpdate(sql);
+			int rowAffected = statement.executeUpdate(sql,statement.RETURN_GENERATED_KEYS);
+			if(rowAffected == 1) {
+				ResultSet resultSet = statement.getGeneratedKeys();
+				if (resultSet.next()) employee_id = resultSet.getInt(1);				
+			}
+			employeePayrollData = new EmployeePayrollData(employee_id, name, phoneNumber, address, gender, salary, startDate);
 		}catch(SQLException e) {
-			e.printStackTrace();
+			throw new EmployeePayrollException(ExceptionType.INSERT_FAILED, "Insertion failed");
 		}
-		});
+		return employeePayrollData;
 	}
-
+	
 	private Connection getConnection() {
 		String jdbcURL = "jdbc:mysql://localhost:3306/payroll_service?useSSL=false";
 		String userName = "root";
@@ -103,38 +107,7 @@ public class EmployeePayrollDBService {
 			e.printStackTrace();
 		}
 	}
-	public int genderWiseSumOfEmployeeSalary(String gender) {
-		return this.genderWiseSumUsingPreparedStatement(gender);
-	}
-	
-	private int genderWiseSumUsingPreparedStatement(String gender) {
-		if(this.genderWiseSumDataStatement==null){
-			this.preparedStatementForGenderWiseSumEmployeeSalary();
-		}
-		try{
-			genderWiseSumDataStatement.setString(1,gender);
-			genderWiseSumDataStatement.executeQuery();
-		}
-		catch (SQLException e){
-			e.printStackTrace();
-		}
-		return 0;
-	}
-
-	private void preparedStatementForGenderWiseSumEmployeeSalary() {
-		try{
-			Connection connection = this.getConnection();
-			String sql="SELECT sum(salary) from employee_payroll where gender = ? group by gender;";
-
-			genderWiseSumDataStatement=connection.prepareStatement(sql);
-		}
-		catch (SQLException e){
-			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "Cannot execute the query");
-		}
-	}
-
-
-	private int updateEmployeeDataUsingStatement(String name, double salary) {
+		private int updateEmployeeDataUsingStatement(String name, double salary) {
 		String sql = String.format("update employee_payroll set salary = '%2f' where name = '%s';",salary,name);
 		try(Connection connection = this.getConnection()) {
 			Statement statement = connection.createStatement();
@@ -166,11 +139,10 @@ public class EmployeePayrollDBService {
 				String name = result.getString("name");
 				String phoneNumber = result.getString("phoneNumber");
 				String address = result.getString("address");
-				String department = result.getString("department");
 				String gender = result.getString("gender");
 				double salary = result.getDouble("salary");
 				LocalDate start = result.getDate("start").toLocalDate();
-				employeePayrollList.add(new EmployeePayrollData(id, name, phoneNumber, address, department, gender, salary, start));
+				employeePayrollList.add(new EmployeePayrollData(id, name, phoneNumber, address, gender, salary, start));
 			}
 		}catch (SQLException e) {
 			e.printStackTrace();
@@ -217,67 +189,7 @@ public class EmployeePayrollDBService {
 		}
 	}
 
-	public int genderWiseMaxOfEmployeeSalary(String gender) {
-		return this.genderWiseMaxUsingPreparedStatement(gender);
-	}
-	
-	private int genderWiseMaxUsingPreparedStatement(String gender) {
-		if(this.genderWiseMaxDataStatement==null){
-			this.preparedStatementForGenderWiseMaxEmployeeSalary();
-		}
-		try{
-			genderWiseMaxDataStatement.setString(1,gender);
-			genderWiseMaxDataStatement.executeQuery();
-		}
-		catch (SQLException e){
-			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "Cannot execute the query");
-		}
-		return 0;
-	}
-
-	private void preparedStatementForGenderWiseMaxEmployeeSalary() {
-		try{
-			Connection connection = this.getConnection();
-			String sql="SELECT max(salary) from employee_payroll where gender = ? group by gender;";
-
-			genderWiseMaxDataStatement=connection.prepareStatement(sql);
-		}
-		catch (SQLException e){
-			e.printStackTrace();
-		}
-	}
-
-	public int genderWiseMinOfEmployeeSalary(String gender) {
-		return this.genderWiseMinUsingPreparedStatement(gender);
-	}
-	
-	private int genderWiseMinUsingPreparedStatement(String gender) {
-		if(this.genderWiseMinDataStatement==null){
-			this.preparedStatementForGenderWiseMinEmployeeSalary();
-		}
-		try{
-			genderWiseMinDataStatement.setString(1,gender);
-			genderWiseMinDataStatement.executeQuery();
-		}
-		catch (SQLException e){
-			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "Cannot execute the query");
-		}
-		return 0;
-	}
-
-	private void preparedStatementForGenderWiseMinEmployeeSalary() {
-		try{
-			Connection connection = this.getConnection();
-			String sql="SELECT min(salary) from employee_payroll where gender = ? group by gender;";
-
-			genderWiseMinDataStatement=connection.prepareStatement(sql);
-		}
-		catch (SQLException e){
-			e.printStackTrace();
-		}
-	}
-
-	public Map<String, Double> getAverageSalaryByGender() {
+		public Map<String, Double> getAverageSalaryByGender() {
 		String sql = "SELECT gender,avg(salary) as avg_salary FROM employee_payroll GROUP BY gender;";
 		Map<String, Double> genderToAverageSalaryMap = new HashMap<>();
 		try(Connection connection = this.getConnection()){
@@ -346,9 +258,4 @@ public class EmployeePayrollDBService {
 	}
 
 	
-
-
-
-	
-
 }
