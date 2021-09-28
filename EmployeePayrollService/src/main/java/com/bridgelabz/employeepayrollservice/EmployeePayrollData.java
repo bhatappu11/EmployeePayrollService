@@ -10,6 +10,7 @@ public class EmployeePayrollData {
 	public String gender;
 	public LocalDate startDate;
 	public String address;
+	public Company company;
 	
 	public EmployeePayrollData(int id, String name, double salary) {
 		this.id = id;
@@ -17,25 +18,33 @@ public class EmployeePayrollData {
 		this.salary = salary;
 	}
 
-	public EmployeePayrollData(int id2, String name2, String phoneNumber,String address, String gender, double salary2, LocalDate start) {
+	public EmployeePayrollData(int id2, String name2, String phoneNumber,String address, String gender, double salary2, LocalDate start, Company company) {
 		this(id2,name2,salary2);
 		this.phoneNumber = phoneNumber;
 		this.address = address;
 		this.gender = gender;
 		this.startDate = start;
-	}
-
-	public EmployeePayrollData() {
-	}
-
-	@Override
-	public String toString() {
-		return "EmployeePayrollData [id=" + id + ", name=" + name + ", salary=" + salary + ", phoneNumber="
-				+ phoneNumber + ", gender=" + gender + ", startDate=" + startDate 
-				+ ", address=" + address + "]";
+		this.company = company;
 	}
 
 	
+	
+	@Override
+	public String toString() {
+		return "EmployeePayrollData [id=" + id + ", name=" + name + ", salary=" + salary + ", phoneNumber="
+				+ phoneNumber + ", gender=" + gender + ", startDate=" + startDate + ", address=" + address
+				+ ", companyId=" + company + "]";
+	}
+
+	
+	public Company getCompany() {
+		return company;
+	}
+
+	public void setCompany(Company company) {
+		this.company = company;
+	}
+
 	public int getId() {
 		return id;
 	}
