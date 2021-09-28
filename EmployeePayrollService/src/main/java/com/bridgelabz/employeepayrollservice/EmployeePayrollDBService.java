@@ -32,7 +32,9 @@ public class EmployeePayrollDBService {
 	}
 
 	public List<EmployeePayrollData> readData() {
-		String sql = "select * from employee_payroll;";
+		String sql = "select * from employee e,payroll p where e.id = p.employee_id;";
+		HashMap<Integer,ArrayList<Department>> departmentList = getDepartmentList();
+		HashMap<Integer, Company> companyMap = getCompany();
 		List<EmployeePayrollData> employeePayrollList = new ArrayList<>();
 		try(Connection connection = this.getConnection()) {
 			Statement statement = connection.createStatement();
@@ -43,9 +45,150 @@ public class EmployeePayrollDBService {
 		}
 		return employeePayrollList;
 	}
+	private HashMap<Integer, Company> getCompany() {
+		HashMap<Integer, Company> companyMap = new HashMap<>();
+		String sql = "select * from company";
+		try(Connection connection = this.getConnection()) {
+			Statement statement = connection.createStatement();
+			ResultSet result = statement.executeQuery(sql);
+			while(result.next()) {
+				int id  = result.getInt("company_id");
+				String name  = result.getString("company_name");
+				companyMap.put(id, new Company(id, name));
+			}
+		}
+		catch(SQLException e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "query execution failed");
+		}
+		return companyMap;
+	}
+
+	private HashMap<Integer, ArrayList<Department>> getDepartmentList() {
+		HashMap<Integer,ArrayList<Department>> departmentList = new HashMap<>();
+		String sql = "select * from employee_department";
+		HashMap<String,Department> departmentMap = getDepartment();
+		try(Connection connection = this.getConnection()) {
+			Statement statement = connection.createStatement();
+			ResultSet resultSet = statement.executeQuery(sql);
+			while(resultSet.next()) {
+				int employeeId = resultSet.getInt("employee_id");
+				String departmentId = resultSet.getString("department_id");
+				if(departmentList.get(employeeId) == null) departmentList.put(employeeId, new ArrayList<Department>());
+				departmentList.get(employeeId).add(departmentMap.get(departmentId));
+			}
+		}
+		catch(SQLException e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "query execution failed");
+		}
+		return departmentList;
+	}
+
+	private HashMap<String, Department> getDepartment() {
+		String sql = "select * from department";
+		HashMap<String,Department> dept = new HashMap<>();
+		try(Connection connection = this.getConnection();) {
+			Statement statement = connection.createStatement();
+			ResultSet result = statement.executeQuery(sql);
+			while(result.next()) {
+				String id = result.getString("dept_id");
+				String name  = result.getString("dept_name");
+				dept.put(id,new Department(id, name));
+			}
+		}
+		catch(SQLException e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "query execution failed");
+		}
+		return dept;
+	}
 	public EmployeePayrollData addEmployeeToPayroll(String name, String phoneNumber, String address,
-			String gender, double salary, LocalDate startDate) {
+			String gender, double salary, LocalDate startDate, int companyId) {
+		int employeeId = -1;
+		HashMap<Integer, Company> companyMap = getCompany();
+		EmployeePayrollData employeePayrollData = null;
+		Connection connection = null;
+		try {
+			connection = this.getConnection();
+			connection.setAutoCommit(false);
+		}catch(Exception e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.FAILED_TO_CONNECT, "couldn't establish connection");
+		}
+	
+		try (Statement statement = connection.createStatement()){
+			String sql = String.format("select * from company where company_id = %d",companyId);
+			ResultSet result = statement.executeQuery(sql);
+			if(result.next() == false) {
+				throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "Company with id:"+companyId+" not present");
+			}
+		}catch(SQLException e) {
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "query execution failed");
+		}
+	
+		/*try (Statement statement = connection.createStatement();){
+			String sql = String.format("select * from department where department_id = '%s'",departemntId);
+			ResultSet result = statement.executeQuery(sql);
+			if(result.next() == false) {
+				throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "department with id:"+departemntId+" not present");
+			}
+		}catch(SQLException e) {
+		throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "query execution failed");
+	}*/	
+	try (Statement statement = connection.createStatement()){
+		String sql = String.format("INSERT INTO employee(company_id,name,gender,address,phoneNumber,start,salary)VALUES(%d,'%s','%s','%s',%s,'%s','%s')",companyId,name,
+				gender,address,phoneNumber, startDate.toString(),salary);
+		int result = statement.executeUpdate(sql,statement.RETURN_GENERATED_KEYS);
+		if(result == 1) {
+			ResultSet resultSet = statement.getGeneratedKeys();
+			if(resultSet.next()) employeeId = resultSet.getInt(1);
+		}
+	}catch(SQLException e) {
+		try {
+			connection.rollback();
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		e.printStackTrace();
+		throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "query execution failed");
+	}
+	
+	try(Statement statement = connection.createStatement();){
+		double deductions = salary * 0.2;
+		double taxablePay = salary - deductions;
+		double tax = taxablePay * 0.1;
+		double netPay = salary - tax;
+		String sql = String.format("INSERT INTO payroll(employee_id, basic_pay, deductions, taxable_pay, tax, net_pay)VALUES(%d,%2f,%2f,%2f,%2f,%2f)",
+				employeeId,salary,deductions,taxablePay,tax,netPay);
+		int result = statement.executeUpdate(sql);
+		if(result == 1) {
+			employeePayrollData = new EmployeePayrollData(employeeId, name, phoneNumber, address, gender, salary, startDate,companyMap.get(companyId));
+		}
+	}catch(SQLException e) {
+		try {
+			connection.rollback();
+		} 
+		catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "query execution failed");
+	}try {
+		connection.commit();
+	} catch (SQLException e) {
+		e.printStackTrace();
+	}
+	finally {
+		if(connection != null)
+			try {
+				connection.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+	}
+	return employeePayrollData;
+}
+
+	/*public EmployeePayrollData addEmployeeToPayroll(String name, String phoneNumber, String address,
+			String gender, double salary, LocalDate startDate, int companyId) {
 		int employee_id = -1;
+		HashMap<Integer, Company> companyMap = getCompany();
 		Connection connection = null;
 		EmployeePayrollData employeePayrollData = null;
 		try {
@@ -55,7 +198,7 @@ public class EmployeePayrollDBService {
 			e.printStackTrace();
 		}
 		try(Statement statement = connection.createStatement()) {
-			String sql = String.format("insert into employee_payroll(name,phoneNumber,address,gender,salary,start) values ('%s','%s','%s','%s','%2f','%s')",
+			String sql = String.format("insert into employee(name,phoneNumber,address,gender,salary,start,company_id) values ('%s','%s','%s','%s','%2f','%s',%d)",
 				name,phoneNumber,address,gender,salary,Date.valueOf(startDate));		
 			int rowAffected = statement.executeUpdate(sql,statement.RETURN_GENERATED_KEYS);
 			if(rowAffected == 1) {
@@ -74,11 +217,11 @@ public class EmployeePayrollDBService {
 			double taxablePay = salary - deductions;
 			double tax = taxablePay * 0.1;
 			double netPay = salary - tax;
-			String sql = String.format("insert into payroll_details(employee_id,basic_pay,deductions,taxable_pay,tax,net_pay) values ('%s','%2f','%2f','%2f','%2f','%2f');", 
+			String sql = String.format("insert into payroll(employee_id,basic_pay,deductions,taxable_pay,tax,net_pay) values ('%s','%2f','%2f','%2f','%2f','%2f');", 
 					employee_id,salary,deductions,taxablePay,tax,netPay);
 			int rowAffected = statement.executeUpdate(sql,statement.RETURN_GENERATED_KEYS);
 			if(rowAffected == 1) 
-				employeePayrollData = new EmployeePayrollData(employee_id, name, phoneNumber, address, gender, salary, startDate);			
+				employeePayrollData = new EmployeePayrollData(employee_id, name, phoneNumber, address, gender, salary, startDate,companyMap.get(companyId));			
 		}catch(SQLException e) {
 			e.printStackTrace();
 			try {
@@ -101,7 +244,7 @@ public class EmployeePayrollDBService {
 		}
 		return employeePayrollData;
 	}
-	
+	*/
 	private Connection getConnection() {
 		String jdbcURL = "jdbc:mysql://localhost:3306/payroll_service?useSSL=false";
 		String userName = "root";
@@ -117,7 +260,7 @@ public class EmployeePayrollDBService {
 		return connection;
 	}
 	public int updateEmployeeData(String name, double salary) throws EmployeePayrollException {
-		return this.updateEmployeeDataUsingPreparedStatement(name,salary);
+		return this.updateEmployeeDataUsingStatement(name,salary);
 	}
 	
 	private int updateEmployeeDataUsingPreparedStatement(String name, double salary) {
@@ -138,7 +281,7 @@ public class EmployeePayrollDBService {
 	private void preparedStatementForUpdateEmployeeData() {
 		try{
 			Connection connection = this.getConnection();
-			String sql="UPDATE employee_payroll SET salary = ? WHERE name = ?;";
+			String sql="UPDATE payroll SET basic_pay = ? WHERE employee_id IN (select id from employee where name = ?);";
 
 			employeePayrollUpdateDataStatement=connection.prepareStatement(sql);
 		}
@@ -147,7 +290,7 @@ public class EmployeePayrollDBService {
 		}
 	}
 		private int updateEmployeeDataUsingStatement(String name, double salary) {
-		String sql = String.format("update employee_payroll set salary = '%2f' where name = '%s';",salary,name);
+		String sql = String.format("update payroll set basic_pay = %2f where employee_id IN (select id from employee where name = '%s') ;",salary,name);
 		try(Connection connection = this.getConnection()) {
 			Statement statement = connection.createStatement();
 			int result = statement.executeUpdate(sql);
@@ -171,6 +314,8 @@ public class EmployeePayrollDBService {
 	}
 
 	private List<EmployeePayrollData> getEmployeePayrollData(ResultSet result) {
+		HashMap<Integer,ArrayList<Department>> departmentList = getDepartmentList();
+		HashMap<Integer, Company> companyMap = getCompany();
 		List<EmployeePayrollData> employeePayrollList = new ArrayList();
 		try {
 			while(result.next ()) {
@@ -181,7 +326,8 @@ public class EmployeePayrollDBService {
 				String gender = result.getString("gender");
 				double salary = result.getDouble("salary");
 				LocalDate start = result.getDate("start").toLocalDate();
-				employeePayrollList.add(new EmployeePayrollData(id, name, phoneNumber, address, gender, salary, start));
+				int companyId = result.getInt("company_id");
+				employeePayrollList.add(new EmployeePayrollData(id, name, phoneNumber, address, gender, salary, start,companyMap.get(companyId)));
 			}
 		}catch (SQLException e) {
 			e.printStackTrace();
@@ -192,7 +338,7 @@ public class EmployeePayrollDBService {
 	private void prepareStatementForEmployeeData() {
 		try {
 			Connection connection = this.getConnection();
-			String sql=	"SELECT	* FROM employee_payroll WHERE name = ?";
+			String sql=	"SELECT	* FROM employee WHERE name = ?";
 			employeePayrollDataStatement = connection.prepareStatement(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -221,7 +367,7 @@ public class EmployeePayrollDBService {
 	private void preparedStatementForEmployeeInDateRange() {
 		try{
 			Connection connection = this.getConnection();
-			String sql="SELECT * FROM employee_payroll WHERE start BETWEEN ? AND ?";
+			String sql=" SELECT * FROM employee e,payroll p WHERE p.employee_id = e.id AND e.start BETWEEN ? AND ?;";
 			employeePayrollDateStatement=connection.prepareStatement(sql);
 		}catch (SQLException e){
 			e.printStackTrace();

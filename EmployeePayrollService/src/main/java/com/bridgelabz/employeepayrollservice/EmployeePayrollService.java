@@ -97,9 +97,10 @@ public class EmployeePayrollService {
 			return employeePayrollDBService.getMinSalaryByGender();
 		return null;
 	}
+	
 	public void addEmployeeToPayroll(String name, String phoneNumber, String address, String gender,
-			double salary, LocalDate startDate) {
-		employeePayrollList.add(employeePayrollDBService.addEmployeeToPayroll(name,phoneNumber,address,gender,salary,startDate));		
+			double salary, LocalDate startDate,int companyId) {
+		employeePayrollList.add(employeePayrollDBService.addEmployeeToPayroll(name,phoneNumber,address,gender,salary,startDate,companyId));		
 	}
 	
 
