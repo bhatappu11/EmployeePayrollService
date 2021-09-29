@@ -71,8 +71,8 @@ public class EmployeePayrollDBService {
 			Statement statement = connection.createStatement();
 			ResultSet resultSet = statement.executeQuery(sql);
 			while(resultSet.next()) {
-				int employeeId = resultSet.getInt("employee_id");
-				String departmentId = resultSet.getString("department_id");
+				int employeeId = resultSet.getInt("emp_id");
+				String departmentId = resultSet.getString("dept_id");
 				if(departmentList.get(employeeId) == null) departmentList.put(employeeId, new ArrayList<Department>());
 				departmentList.get(employeeId).add(departmentMap.get(departmentId));
 			}
@@ -101,7 +101,7 @@ public class EmployeePayrollDBService {
 		return dept;
 	}
 	public EmployeePayrollData addEmployeeToPayroll(String name, String phoneNumber, String address,
-			String gender, double salary, LocalDate startDate, int companyId) {
+			String gender, double salary, LocalDate startDate, int companyId,String deptName) {
 		int employeeId = -1;
 		HashMap<Integer, Company> companyMap = getCompany();
 		EmployeePayrollData employeePayrollData = null;
@@ -131,6 +131,20 @@ public class EmployeePayrollDBService {
 				ResultSet resultSet = statement.getGeneratedKeys();
 				if(resultSet.next()) employeeId = resultSet.getInt(1);
 			}
+		}catch(SQLException e) {
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "query execution failed");
+		}
+		
+		try (Statement statement = connection.createStatement()){
+			String sql = String.format("INSERT INTO employee_department(emp_id,dept_id)VALUES(%d,'%s')",employeeId,deptName);
+			int result = statement.executeUpdate(sql);
+			
 		}catch(SQLException e) {
 			try {
 				connection.rollback();
