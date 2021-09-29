@@ -42,7 +42,7 @@ public class EmployeePayrollServiceDBTest {
 		String date = "11-02-2017";
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
 		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
-		employeePayrollService.addEmployeeToPayroll("Mini","9880906789","RR Nagar","F",400000.00,LocalDate.parse(date,formatter),2);
+		employeePayrollService.addEmployeeToPayroll("Mini","9880906789","RR Nagar","F",400000.00,LocalDate.parse(date,formatter),2,"d2");
 		boolean result=employeePayrollService.checkEmployeePayrollInSyncWithDB("Mini");
 		Assert.assertTrue(result);
 		
@@ -110,7 +110,7 @@ public class EmployeePayrollServiceDBTest {
 		LocalDate startDate = LocalDate.parse(date, formatter);
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService(new ArrayList<>()); 
 		try {
-			employeePayrollService.addEmployeeToPayroll("Mary","9866906789","RT Nagar","F",500000.00,LocalDate.parse(date,formatter),15);
+			employeePayrollService.addEmployeeToPayroll("Mary","9866906789","RT Nagar","F",500000.00,LocalDate.parse(date,formatter),15,"d1");
 			ExpectedException exceptionRule = ExpectedException.none();
 			exceptionRule.expect(EmployeePayrollException.class);
 		}
