@@ -112,4 +112,11 @@ public class EmployeePayrollServiceTest {
 		Assert.assertTrue(minSalaryByGender.get("M").equals(200000.00)&&
 		minSalaryByGender.get("F").equals(400000.00));
 	}
+	@Test
+	public void givenEmployeeName_WhenDeleted_ShouldBecomeInactive() {
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService(new ArrayList<>()); 
+		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
+		int result = employeePayrollService.deleteEmployee("Mini");
+		Assert.assertTrue(result>0);
+	}
 }
