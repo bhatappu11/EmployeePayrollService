@@ -11,6 +11,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import com.bridgelabz.employeepayrollservice.EmployeePayrollService.IOService;
 
@@ -101,5 +102,20 @@ public class EmployeePayrollServiceDBTest {
 		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
 		int result = employeePayrollService.deleteEmployee("Mini");
 		Assert.assertTrue(result>0);
+	}
+	@Test
+	public void givenEmployeeWithWrongCompany_WhenInserted_ShouldThrowException() {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy");
+		String date = "16/08/2019";
+		LocalDate startDate = LocalDate.parse(date, formatter);
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService(new ArrayList<>()); 
+		try {
+			employeePayrollService.addEmployeeToPayroll("Mary","9866906789","RT Nagar","F",500000.00,LocalDate.parse(date,formatter),15);
+			ExpectedException exceptionRule = ExpectedException.none();
+			exceptionRule.expect(EmployeePayrollException.class);
+		}
+		catch(EmployeePayrollException e) {
+			System.out.println(e.getMessage());
+		}
 	}
 }
