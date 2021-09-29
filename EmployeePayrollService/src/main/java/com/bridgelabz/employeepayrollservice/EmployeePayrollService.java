@@ -99,8 +99,8 @@ public class EmployeePayrollService {
 	}
 	
 	public void addEmployeeToPayroll(String name, String phoneNumber, String address, String gender,
-			double salary, LocalDate startDate,int companyId) {
-		employeePayrollList.add(employeePayrollDBService.addEmployeeToPayroll(name,phoneNumber,address,gender,salary,startDate,companyId));		
+			double salary, LocalDate startDate,int companyId,String deptId) {
+		employeePayrollList.add(employeePayrollDBService.addEmployeeToPayroll(name,phoneNumber,address,gender,salary,startDate,companyId,deptId));		
 	}
 	public int deleteEmployee(String name) {
 		return employeePayrollDBService.deleteEmployee(name, this.employeePayrollList);
