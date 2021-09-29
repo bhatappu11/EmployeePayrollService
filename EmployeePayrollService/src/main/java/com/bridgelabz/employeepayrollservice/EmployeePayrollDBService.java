@@ -124,7 +124,7 @@ public class EmployeePayrollDBService {
 		}
 		
 		try (Statement statement = connection.createStatement()){
-			String sql = String.format("INSERT INTO employee(company_id,name,gender,address,phoneNumber,start,salary)VALUES(%d,'%s','%s','%s',%s,'%s','%s')",companyId,name,
+			String sql = String.format("INSERT INTO employee(company_id,name,gender,address,phoneNumber,start,salary,is_active)VALUES(%d,'%s','%s','%s',%s,'%s','%s',true)",companyId,name,
 					gender,address,phoneNumber, startDate.toString(),salary);
 			int result = statement.executeUpdate(sql,statement.RETURN_GENERATED_KEYS);
 			if(result == 1) {
@@ -258,6 +258,7 @@ public class EmployeePayrollDBService {
 				double salary = result.getDouble("salary");
 				LocalDate start = result.getDate("start").toLocalDate();
 				int companyId = result.getInt("company_id");
+				boolean isActive = result.getBoolean("is_active");
 				employeePayrollList.add(new EmployeePayrollData(id, name, phoneNumber, address, gender, salary, start,companyMap.get(companyId)));
 			}
 		}catch (SQLException e) {
@@ -269,7 +270,7 @@ public class EmployeePayrollDBService {
 	private void prepareStatementForEmployeeData() {
 		try {
 			Connection connection = this.getConnection();
-			String sql=	"SELECT	* FROM employee WHERE name = ? and e.is_active = true;";
+			String sql=	"SELECT	* FROM employee WHERE is_active = true and name = ?;";
 			employeePayrollDataStatement = connection.prepareStatement(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();

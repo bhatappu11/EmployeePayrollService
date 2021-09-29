@@ -42,7 +42,7 @@ public class EmployeePayrollServiceDBTest {
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
 		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
 		employeePayrollService.addEmployeeToPayroll("Mini","9880906789","RR Nagar","F",400000.00,LocalDate.parse(date,formatter),2);
-		boolean result=employeePayrollService.checkEmployeePayrollInSyncWithDB("Mark");
+		boolean result=employeePayrollService.checkEmployeePayrollInSyncWithDB("Mini");
 		Assert.assertTrue(result);
 		
 	}
