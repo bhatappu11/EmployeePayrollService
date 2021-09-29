@@ -58,7 +58,7 @@ public class EmployeePayrollServiceTest {
 		String date = "11-02-2017";
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
 		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
-		employeePayrollService.addEmployeeToPayroll("Mark","9090906789","RT Nagar","M",200000.00,LocalDate.parse(date,formatter),1);
+		employeePayrollService.addEmployeeToPayroll("Mini","9880906789","RR Nagar","F",400000.00,LocalDate.parse(date,formatter),2);
 		boolean result=employeePayrollService.checkEmployeePayrollInSyncWithDB("Mark");
 		Assert.assertTrue(result);
 		
@@ -79,37 +79,37 @@ public class EmployeePayrollServiceTest {
 		LocalDate endDate = LocalDate.now(); 
 		List<EmployeePayrollData> employeeList = employeePayrollService.getEmployeesInADateRange(startDate,endDate);
 		Assert.assertEquals(1, employeeList.size());
-	}/*
+	}
 	@Test
 	public void givenEmployeePayrollDB_WhenAvgSalaryRetrievedByGender_ShouldReturnAvgOfSalary() {
 		EmployeePayrollService employeePayrollService= new EmployeePayrollService();
 		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
 		Map<String, Double> averageSalaryByGender = employeePayrollService.readAverageSalaryByGender(IOService.DB_IO);
-		Assert.assertTrue(averageSalaryByGender.get("M").equals(2190909.090909091)&&
-		averageSalaryByGender.get("F").equals(17728571.42857143));
+		Assert.assertTrue(averageSalaryByGender.get("M").equals(266666.6666666667)&&
+		averageSalaryByGender.get("F").equals(400000.00));
 	}
 	@Test
 	public void givenEmployeePayrollDB_WhenSumSalaryRetrievedByGender_ShouldReturnSumOfSalary() {
 		EmployeePayrollService employeePayrollService= new EmployeePayrollService();
 		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
 		Map<String, Double> sumSalaryByGender = employeePayrollService.readSumSalaryByGender(IOService.DB_IO);
-		Assert.assertTrue(sumSalaryByGender.get("M").equals(24100000.00)&&
-		sumSalaryByGender.get("F").equals(124100000.00));
+		Assert.assertTrue(sumSalaryByGender.get("M").equals(423000.00)&&
+		sumSalaryByGender.get("F").equals(400000.00));
 	}
 	@Test
 	public void givenEmployeePayrollDB_WhenMaxSalaryRetrievedByGender_ShouldReturnMaxOfSalary() {
 		EmployeePayrollService employeePayrollService= new EmployeePayrollService();
 		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
 		Map<String, Double> maxSalaryByGender = employeePayrollService.readMaxSalaryByGender(IOService.DB_IO);
-		Assert.assertTrue(maxSalaryByGender.get("M").equals(20300000.00)&&
-		maxSalaryByGender.get("F").equals(20300000.00));
+		Assert.assertTrue(maxSalaryByGender.get("M").equals(400000.00)&&
+		maxSalaryByGender.get("F").equals(400000.00));
 	}
 	@Test
 	public void givenEmployeePayrollDB_WhenMinSalaryRetrievedByGender_ShouldReturnMinOfSalary() {
 		EmployeePayrollService employeePayrollService= new EmployeePayrollService();
 		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
 		Map<String, Double> minSalaryByGender = employeePayrollService.readMinSalaryByGender(IOService.DB_IO);
-		Assert.assertTrue(minSalaryByGender.get("M").equals(100000.00)&&
-		minSalaryByGender.get("F").equals(2300000.00));
-	}*/
+		Assert.assertTrue(minSalaryByGender.get("M").equals(200000.00)&&
+		minSalaryByGender.get("F").equals(400000.00));
+	}
 }
