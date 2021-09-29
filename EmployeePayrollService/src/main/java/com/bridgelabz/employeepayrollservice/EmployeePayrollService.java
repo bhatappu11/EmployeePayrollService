@@ -102,6 +102,9 @@ public class EmployeePayrollService {
 			double salary, LocalDate startDate,int companyId) {
 		employeePayrollList.add(employeePayrollDBService.addEmployeeToPayroll(name,phoneNumber,address,gender,salary,startDate,companyId));		
 	}
+	public int deleteEmployee(String name) {
+		return employeePayrollDBService.deleteEmployee(name, this.employeePayrollList);
+	}
 	
 
 	
