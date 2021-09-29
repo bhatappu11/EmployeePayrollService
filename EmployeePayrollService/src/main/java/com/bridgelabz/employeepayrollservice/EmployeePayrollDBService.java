@@ -32,7 +32,7 @@ public class EmployeePayrollDBService {
 	}
 
 	public List<EmployeePayrollData> readData() {
-		String sql = "select * from employee e,payroll p where e.id = p.employee_id;";
+		String sql = "select * from employee e,payroll p where e.id = p.employee_id and e.is_active = true;";
 		HashMap<Integer,ArrayList<Department>> departmentList = getDepartmentList();
 		HashMap<Integer, Company> companyMap = getCompany();
 		List<EmployeePayrollData> employeePayrollList = new ArrayList<>();
@@ -221,7 +221,7 @@ public class EmployeePayrollDBService {
 		}
 	}
 		private int updateEmployeeDataUsingStatement(String name, double salary) {
-		String sql = String.format("update payroll set basic_pay = %2f where employee_id IN (select id from employee where name = '%s') ;",salary,name);
+		String sql = String.format("update payroll set basic_pay = %2f where employee_id IN (select id from employee where name = '%s' and e.is_active = true) ;",salary,name);
 		try(Connection connection = this.getConnection()) {
 			Statement statement = connection.createStatement();
 			int result = statement.executeUpdate(sql);
@@ -269,7 +269,7 @@ public class EmployeePayrollDBService {
 	private void prepareStatementForEmployeeData() {
 		try {
 			Connection connection = this.getConnection();
-			String sql=	"SELECT	* FROM employee WHERE name = ?";
+			String sql=	"SELECT	* FROM employee WHERE name = ? and e.is_active = true;";
 			employeePayrollDataStatement = connection.prepareStatement(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -298,7 +298,7 @@ public class EmployeePayrollDBService {
 	private void preparedStatementForEmployeeInDateRange() {
 		try{
 			Connection connection = this.getConnection();
-			String sql=" SELECT * FROM employee e,payroll p WHERE p.employee_id = e.id AND e.start BETWEEN ? AND ?;";
+			String sql=" SELECT * FROM employee e,payroll p WHERE p.employee_id = e.id AND e.start BETWEEN ? AND ? and e.is_active = true;";
 			employeePayrollDateStatement=connection.prepareStatement(sql);
 		}catch (SQLException e){
 			e.printStackTrace();
@@ -306,7 +306,7 @@ public class EmployeePayrollDBService {
 	}
 
 		public Map<String, Double> getAverageSalaryByGender() {
-		String sql = "SELECT gender,avg(salary) as avg_salary FROM employee e,payroll p where e.id=p.employee_id GROUP BY gender;";
+		String sql = "SELECT gender,avg(salary) as avg_salary FROM employee e,payroll p where e.id=p.employee_id and e.is_active = true GROUP BY gender;";
 		Map<String, Double> genderToAverageSalaryMap = new HashMap<>();
 		try(Connection connection = this.getConnection()){
 			Statement statement = connection.createStatement();
@@ -324,7 +324,7 @@ public class EmployeePayrollDBService {
 
 	public Map<String, Double> getSumSalaryByGender() {
 		HashMap<String,Double> salaryMap = new HashMap<>();
-		String sql = "SELECT gender,SUM(basic_pay) as sum_salary  FROM employee e, payroll p WHERE e.id = p.employee_id GROUP BY gender;";
+		String sql = "SELECT gender,SUM(basic_pay) as sum_salary  FROM employee e, payroll p WHERE e.id = p.employee_id and e.is_active = true GROUP BY gender;";
 		try(Connection connection = this.getConnection();) {
 			Statement statement = connection.createStatement();
 			ResultSet result = statement.executeQuery(sql);
@@ -341,7 +341,7 @@ public class EmployeePayrollDBService {
 	}
 
 	public Map<String, Double> getMaxSalaryByGender() {
-		String sql = "SELECT gender,max(salary) as max_salary FROM employee e,payroll p where e.id=p.employee_id GROUP BY gender;";
+		String sql = "SELECT gender,max(salary) as max_salary FROM employee e,payroll p where e.id=p.employee_id and e.is_active = true GROUP BY gender;";
 		Map<String, Double> genderToMaxSalaryMap = new HashMap<>();
 		try(Connection connection = this.getConnection()){
 			Statement statement = connection.createStatement();
@@ -358,7 +358,7 @@ public class EmployeePayrollDBService {
 	}
 
 	public Map<String, Double> getMinSalaryByGender() {
-		String sql = "SELECT gender,min(salary) as min_salary FROM employee e,payroll p where e.id=p.employee_id GROUP BY gender;";
+		String sql = "SELECT gender,min(salary) as min_salary FROM employee e,payroll p where e.id=p.employee_id and e.is_active = true GROUP BY gender;";
 		Map<String, Double> genderToMinSalaryMap = new HashMap<>();
 		try(Connection connection = this.getConnection()){
 			Statement statement = connection.createStatement();
@@ -373,6 +373,27 @@ public class EmployeePayrollDBService {
 		}
 		return genderToMinSalaryMap;
 	}
+	
+	public int deleteEmployee(String name, List<EmployeePayrollData> employeeList) {
+		int result = 0;
+		String sql = String.format("update employee set is_active = false where name = '%s'",name);
+		try(Connection connection = this.getConnection()){
+			Statement statement = connection.createStatement();
+			result = statement.executeUpdate(sql);
+			deleteEmployeeObject(name, employeeList);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new EmployeePayrollException(EmployeePayrollException.ExceptionType.CANNOT_EXECUTE_QUERY, "Cannot execute the query");
+		}
+		return result;
+	}
+
+	private void deleteEmployeeObject(String name,List<EmployeePayrollData> employeeList) {
+		for(EmployeePayrollData employee : employeeList) {
+			if(employee.name.equals(name)) employeeList.remove(employee);
+		}
+	}
+
 
 	
 }
