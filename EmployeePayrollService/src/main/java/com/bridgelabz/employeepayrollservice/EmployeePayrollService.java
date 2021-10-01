@@ -6,9 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import com.bridgelabz.employeepayrollservice.IoService.IOService;
+
 public class EmployeePayrollService {
-	public enum IOService {CONSOLE_IO, FILE_IO, DB_IO, REST_IO};
-	
+		
 	private List<EmployeePayrollData> employeePayrollList;
 	private EmployeePayrollDBService employeePayrollDBService;
 	public EmployeePayrollService() {

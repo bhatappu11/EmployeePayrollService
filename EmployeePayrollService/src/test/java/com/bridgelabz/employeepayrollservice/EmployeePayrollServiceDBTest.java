@@ -13,10 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.bridgelabz.employeepayrollservice.EmployeePayrollService.IOService;
-
-import static com.bridgelabz.employeepayrollservice.EmployeePayrollService.IOService.FILE_IO;
-
+import com.bridgelabz.employeepayrollservice.IoService.IOService;
 
 public class EmployeePayrollServiceDBTest {
 	public int numOfEntries = 0;

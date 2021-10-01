@@ -1,14 +1,12 @@
 package com.bridgelabz.employeepayrollservice;
 
-import static com.bridgelabz.employeepayrollservice.EmployeePayrollService.IOService.FILE_IO;
-
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.bridgelabz.employeepayrollservice.EmployeePayrollService.IOService;
+import com.bridgelabz.employeepayrollservice.IoService.IOService;
 
 public class EmployeePayrollFileTest {
 	static int  size = 3;
@@ -22,17 +20,17 @@ public class EmployeePayrollFileTest {
 		
 		EmployeePayrollService employeePayrollService;
 		employeePayrollService = new EmployeePayrollService(Arrays.asList(arrayOfEmps));
-		employeePayrollService.writeEmployeePayrollData(FILE_IO);
-		employeePayrollService.readEmployeePayrollData(FILE_IO);
+		employeePayrollService.writeEmployeePayrollData(IOService.FILE_IO);
+		employeePayrollService.readEmployeePayrollData(IOService.FILE_IO);
 		//read and count the entries
-		long entries = employeePayrollService.countEntries(FILE_IO);
+		long entries = employeePayrollService.countEntries(IOService.FILE_IO);
 		Assert.assertEquals(3, entries);
 	}
 	
 	@Test
 	public void givenFileOnReadingFromMatchEmployeeCount() {
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
-		List<EmployeePayrollData> entries = employeePayrollService.readEmployeePayrollData(FILE_IO);
+		List<EmployeePayrollData> entries = employeePayrollService.readEmployeePayrollData(IOService.FILE_IO);
 		Assert.assertEquals(3,entries);
 	}
 }
